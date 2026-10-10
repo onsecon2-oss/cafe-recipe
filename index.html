@@ -1,0 +1,260 @@
+<!doctype html><html><head><meta charset="utf-8"><title>카페 레시피 암기장</title><meta name="robots" content="noindex,nofollow"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="레시피"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 상단 고정 탭 + 한 열 카드. 카드마다 [이름·가격] → [핵심 재료 칩] → [HOT/ICE 순서 흐름] */
+:root{
+  --bg:#f2f5f9; --surface:#ffffff; --ink:#13202c; --muted:#586979; --line:#d5dde6;
+  --accent:#1c5bcc; --on-accent:#ffffff; --chip:#e8eef5;
+  --hot:#b93a26; --hot-bg:#fde8e3; --ice:#1668ad; --ice-bg:#e0effb; --warn:#8a5a00; --warn-bg:#fff2cf;
+  --display:"Black Han Sans","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e141a; --surface:#172029; --ink:#e7eef5; --muted:#93a4b4; --line:#2a3743;
+  --accent:#6ea8ff; --on-accent:#0b1522; --chip:#222e3a;
+  --hot:#ff927c; --hot-bg:#3b1f1a; --ice:#7fc3f7; --ice-bg:#14303f; --warn:#f2c865; --warn-bg:#3a2f12; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0e141a; --surface:#172029; --ink:#e7eef5; --muted:#93a4b4; --line:#2a3743;
+  --accent:#6ea8ff; --on-accent:#0b1522; --chip:#222e3a;
+  --hot:#ff927c; --hot-bg:#3b1f1a; --ice:#7fc3f7; --ice-bg:#14303f; --warn:#f2c865; --warn-bg:#3a2f12; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:20px 56px}
+h1{font-family:var(--display);font-weight:400;font-size:28px;margin:0;letter-spacing:.01em}
+.lede{color:var(--muted);margin:4px 0 0;font-size:13.5px}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line);margin-top:14px}
+.tools{display:flex;gap:8px}
+.tools input{flex:1;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.tools button{font:inherit;font-weight:700;padding:9px 12px;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
+.tools button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:inherit;font-size:14px;font-weight:500;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.sec{margin-top:22px}
+.sec h2{font-family:var(--display);font-weight:400;font-size:21px;margin:0 0 2px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sec h2 small{font-family:var(--body);font-size:12.5px;color:var(--muted);font-weight:500}
+.hint{color:var(--muted);font-size:13px;margin:0 0 10px}
+.list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.head{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:default}
+.quiz .head{cursor:pointer}
+.name{flex:1;min-width:0;font-weight:700;font-size:16.5px;line-height:1.3}
+.name span{display:block;font-weight:400;font-size:12.5px;color:var(--muted)}
+.price{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums;color:var(--accent)}
+.tag{font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.tag.h{background:var(--hot-bg);color:var(--hot)} .tag.i{background:var(--ice-bg);color:var(--ice)}
+.tag.m{background:var(--chip);color:var(--muted)}
+.body{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.quiz .card:not(.open) .body{display:none}
+.quiz .card:not(.open) .price{visibility:hidden}
+.quiz .card:not(.open) .head::after{content:"탭해서 확인";font-size:12px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{background:var(--chip);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:500}
+.row{display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:start}
+.row > b{font-size:11.5px;text-align:center;padding:3px 0;border-radius:5px;margin-top:1px}
+.row > b.h{background:var(--hot-bg);color:var(--hot)} .row > b.i{background:var(--ice-bg);color:var(--ice)} .row > b.g{background:var(--chip);color:var(--muted)}
+.flow{display:flex;flex-wrap:wrap;gap:4px 0;min-width:0}
+.flow span{white-space:normal}
+.flow span + span::before{content:"→";color:var(--accent);font-weight:700;margin:0 6px}
+.vars{border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.var{display:grid;grid-template-columns:minmax(64px,auto) 1fr;gap:10px}
+.var > b{font-size:13.5px}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:6px 10px;font-size:13px}
+
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.rule h3{margin:0 0 6px;font-size:15px}
+.rule ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.ladder{display:grid;grid-template-columns:52px 1fr;gap:6px 12px;align-items:baseline}
+.ladder b{font-family:var(--display);font-weight:400;font-size:18px;color:var(--accent);font-variant-numeric:tabular-nums}
+.check{display:flex;flex-direction:column;gap:2px}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.check label:last-child{border-bottom:0}
+.check input{margin-top:4px;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.check input:checked + span{color:var(--muted);text-decoration:line-through}
+.empty{color:var(--muted);padding:24px 0;text-align:center}
+</style>
+
+<div class="wrap">
+  <h1>카페 레시피 암기장</h1>
+  <p class="lede">가격 단위 천원 · T 테이블스푼 · P 펌프 · S 스쿱 · 숫자만 있는 용량은 원본 표기 그대로</p>
+
+  <div class="bar">
+    <div class="tools">
+      <input id="q" type="search" placeholder="메뉴·재료 검색 (예: 연유, 폼, 렌지)" aria-label="메뉴·재료 검색">
+      <button id="quizBtn" type="button" aria-pressed="false">암기 모드</button>
+    </div>
+    <div class="tabs" id="tabs" role="tablist"></div>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+const D = [
+ {id:'coffee', t:'커피', sub:'기본 · HOT/ICE 가능', items:[
+  {n:'아메리카노', p:4.8, tp:'b', i:['물','얼음 가득','커피']},
+  {n:'에스프레소', p:5.3, tp:'x', k:['설탕스틱','따뜻한 물 1잔'], g:['에스프레소','설탕스틱 + 따뜻한 물 1잔 함께']},
+  {n:'카페 라떼', p:5.8, tp:'b', h:['스팀밀크 240','커피'], i:['얼음 가득','우유','커피']},
+  {n:'바닐라 / 헤이즐넛 라떼', p:6.3, tp:'b', k:['바닐라: 파우더 2 + 시럽 2','헤이즐넛: 파우더 2T + 시럽 2'],
+   h:['커피+파우더+시럽','스팀밀크 230'], i:['얼음 가득','우유','커피+파우더+시럽']},
+  {n:'카페모카 / 마끼야또 / 카푸치노', p:6.3, tp:'b', k:['파우더 H 1.5T','파우더 I 2T'],
+   h:['커피+파우더+시럽','스팀밀크 230'], i:['얼음','우유폼','커피+파우더+시럽','드리즐'],
+   v:[['카페모카','커피 + 초코파우더 2T, 초코 드리즐 (연유 약간)'],['마끼야또','커피 + 캬라멜소스 30 + 캬라멜시럽 1P, 캬라멜 드리즐'],['카푸치노','시나몬파우더 듬뿍 + 수수시럽 약간']]},
+  {n:'돌체 라떼', p:6.5, tp:'b', k:['연유 40','우유 230','캬라멜 드리즐'],
+   h:['스팀밀크 230 (폼 먼저)','커피+연유 40','캬라멜 드리즐'], i:['얼음 절반','찬우유폼','커피+연유 40','캬라멜 드리즐']},
+  {n:'메이플 피칸 라떼', p:6.8, tp:'b', k:['파우더 H 1.5T','파우더 I 2T','메이플시럽'],
+   h:['커피+파우더 1.5T+메이플시럽 1P','스팀밀크 230'], i:['얼음 절반','컵 벽에 메이플시럽','우유폼','커피+파우더 2T']},
+  {n:'블루 커피 ★', s:'우유 베이스', p:7.3, tp:'i', m:'3', k:['블루폼','블루시럽','코코넛시럽 2/3'],
+   i:['블루폼 미리 준비','블루시럽','얼음','우유','코코넛시럽 2/3','블루폼 1T','커피','블루폼 듬뿍'], note:'HOT 없음 (원본에서 HOT 삭제)'},
+  {n:'동동 아인슈페너', s:'우유 베이스', p:6.8, tp:'i', m:'3', k:['동동폼','아몬드시럽 1/3','바닐라시럽 1/3'],
+   i:['얼음','우유','아몬드시럽 1/3','커피+바닐라시럽 1/3','동동폼']},
+  {n:'솔티카라멜 아인슈페너', s:'물 베이스', p:6.8, tp:'i', m:'3', k:['솔티폼','캬라멜 드리즐(벽)','캬라멜시럽 1/3'],
+   i:['컵 벽에 캬라멜 드리즐','얼음','물','커피+캬라멜시럽 1/3','솔티폼','크림 위에 캬라멜 시럽 드리즐']},
+  {n:'아인슈페너', s:'물 베이스', p:6.5, tp:'i', m:'3', k:['아인슈페너 폼','수수시럽 2/3','발로나파우더'],
+   i:['얼음','물','커피+수수시럽 2/3','폼 듬뿍','발로나 파우더']},
+  {n:'아포카토', p:6.8, tp:'i', m:'3', k:['아이스크림 2','샷잔에 커피'],
+   i:['컵 벽에 캬라멜 드리즐','아이스크림 2 + 건레몬 1조각','커피는 샷잔에 따로']}
+ ]},
+ {id:'non', t:'논커피', sub:'기본 · HOT/ICE 가능 · ICE는 파우더+우유', items:[
+  {n:'오곡 라떼', p:5.8, tp:'b', k:['파우더 H 1T','파우더 I 1.5T','아몬드시럽 1P'],
+   h:['파우더 1T+아몬드시럽 1P','스팀밀크'], i:['컵 벽에 아몬드시럽','얼음 반컵','파우더 1.5T','찬우유폼']},
+  {n:'초코 / 말차 / 딸기 / 고구마 라떼', p:6.5, tp:'b', k:['H 스팀밀크 230','I 얼음 반컵','찬우유폼'],
+   h:['스팀밀크 230','말차는 시럽 위에 드리즐'], i:['얼음 반컵','베이스(아래 참고)','찬우유폼'],
+   v:[['초코','초코베이스 2/3 = 파우더 2.5T + 연유 20 + 아몬드시럽 0.5P → 얼음, 우유폼'],['말차','컵 벽에 시럽 드리즐, 파우더 2T + 우유 약간, 맨 위에 파우더 약간'],['딸기','딸기청 70, 찬우유폼'],['고구마','베이스 1T + 파우더 1T']]},
+  {n:'스트로베리 그린티 라떼', p:6.8, tp:'i', k:['딸기청 40','우유폼','말차 파우더 1'],
+   i:['얼음 반컵','딸기청 40','우유폼','우유 80+말차 파우더 1']}
+ ]},
+ {id:'smoothie', t:'스무디·프라페', sub:'Only ICE · 전부 블랜더', items:[
+  {n:'코코넛 스무디', p:6.5, tp:'i', k:['우유 100','얼음 200','코코넛 파우더 1S','냉동 코코넛 베이스'],
+   i:['블랜더에 우유 100+얼음 200','코코넛 파우더 1S','냉동 코코넛 베이스(냉동실 플컵)','갈기']},
+  {n:'과일 스무디', s:'딸기 / 블루베리 / 망고', p:6.5, tp:'i', k:['물 100','얼음 200','냉동 과일 베이스'],
+   i:['컵 벽에 데코','블랜더에 물 100+얼음 200','냉동 과일 베이스(냉동실 플컵)','갈아서 담기','맨 위에 청 얹기']},
+  {n:'요거트 스무디', s:'딸기 / 블루베리 / 망고', p:6.8, tp:'i', k:['우유 100','얼음 200','파우더 2.5T','플레인 3T','요거트 아이스크림 1'],
+   i:['각 시럽 컵 벽에 한바퀴','블랜더에 우유 100+얼음 200+파우더 2.5T','갈아서 담기','요거트 아이스크림 1'], note:'아이스크림 얹을 때 내용물 넘치지 않게'},
+  {n:'초코칩 프라페', p:6.8, tp:'i', k:['우유 100','얼음 200','초코파우더 3T','연유 20','아몬드시럽 반펌'],
+   i:['컵 벽에 초코 드리즐','블랜더에 우유 100+얼음 200+초코파우더 3T+연유 20+아몬드시럽 반펌','갈아서 담기','아이스크림','초코 드리즐']}
+ ]},
+ {id:'ade', t:'에이드·쥬스', sub:'Only ICE', items:[
+  {n:'청귤 / 생레몬 / 복숭아 / 자몽 에이드', p:6.3, tp:'i', k:['큰 유리잔','얼음 절반','청 60','탄산캔'],
+   i:['큰 유리잔','얼음 절반','청 60','슬라이스·데코','탄산캔 마지막에 천천히'],
+   v:[['청귤','청 60, 청귤 슬라이스 3개, 탄산, 한라봉청 찍'],['생레몬','얼음 반컵, 레몬 1개 즙짜기, 레몬 시럽 2P, 레몬청 조각 3개'],['복숭아','청 60, 마지막에 복숭아 청 올리기'],['자몽','청 60, 자몽 슬라이스, 데코잎']],
+   note:'복숭아·자몽은 에이드용 청 (작은 튜브통)'},
+  {n:'오디 레몬 에이드', p:6.8, tp:'i', k:['큰 유리잔','오디청 50 + 물 40','레몬쥬스 2P','탄산캔'],
+   i:['오디청 50+물 40 섞기','얼음 절반','레몬쥬스 2P','탄산캔','레몬청 조각 2개','데코잎'], note:'원본 핵심란은 얼음 1/3, 설명란은 얼음 절반으로 다르게 적혀 있음. 확인 필요'},
+  {n:'생자몽 쥬스', p:6.8, tp:'i', k:['큰 유리잔','자몽과육','자몽쥬스','자몽시럽 1P'],
+   i:['큰 유리잔','얼음 절반','자몽쥬스','자몽시럽 1P','스푼으로 자몽과육 듬뿍']},
+  {n:'웰빙 쥬스', s:'케일킹 / 비트퀸 / 망고하이 / 캐롯파인', p:7.3, tp:'i', k:['냉동실 팩','중간 유리잔','얼음컵','긴스푼','굵은 빨대'],
+   i:['냉동실 팩 꺼내기','렌지 30초~1분','중간 유리잔에 담기','얼음컵+긴스푼+굵은 빨대 함께'],
+   v:[['케일킹','케일, 망고, 파인애플'],['비트퀸','비트, 블루베리, 바나나'],['망고하이','망고, 오렌지, 바나나'],['캐롯파인','당근, 파인애플, 망고']]},
+  {n:'생망고 쥬스', p:7.8, tp:'i', k:['중간 유리잔','얼음 1/3','냉장고 망고쥬스(병)'], i:['중간 유리잔','얼음 1/3','냉장고 망고쥬스(병)']}
+ ]},
+ {id:'tea', t:'티', sub:'기본 · HOT/ICE 가능', items:[
+  {n:'복숭아 아이스티', p:4.8, tp:'i', k:['얼음 가득','아이스티 베이스'], i:['얼음 가득','아이스티 베이스','레몬 슬라이스 1','데코잎','복숭아 청 약간']},
+  {n:'수제 레몬차', p:5.8, tp:'b', k:['레몬청 50','레몬청 3조각','건레몬'],
+   h:['유리 비커에 뜨거운물+레몬청 50','렌지 30초','건레몬','데코잎','레몬청 3조각'], i:['얼음 가득','레몬즙','레몬청 조각 3개(청 즙 약간)','데코잎']},
+  {n:'문경 오미자', p:5.8, tp:'b', k:['오미자 가루 1.5T','오미자청 찍','레몬쥬스 1P (ICE)'],
+   h:['유리 비커에 뜨거운물+오미자 가루 1.5T','렌지 30초','오미자청 찍','건레몬','데코잎'], i:['얼음 가득','오미자즙','레몬쥬스 1P','오미자청 찍','레몬 또는 오렌지','데코잎']},
+  {n:'수제 청귤차', p:6.3, tp:'b', k:['청귤청 50','한라봉청 찍','청귤 슬라이스 3개'],
+   h:['청귤청 50+뜨거운물','렌지 30초','한라봉청 찍','청귤 슬라이스 3개'], i:['얼음 절반','청귤즙','청귤 슬라이스 3개','한라봉청 찍']},
+  {n:'허브티', s:'나랑갈래 / 오디티 / 샹들리에 / 밤의차', p:5.3, tp:'b', k:['티백','뜨거운물 1잔','렌지 X (HOT)'],
+   h:['뜨거운물 1잔에 티백','데코'], i:['티백 2개+물 100','렌지 30초','얼음 가득 컵에 티백 넣기','우려낸 차 붓기','얼음 채우기'],
+   v:[['나랑갈래','데코 레몬 · 루이보스, 로즈힙, 라즈베리, 블루베리'],['오디티','데코 레몬 · 블루멜로우, 케모마일, 페퍼민트'],['샹들리에','데코 오렌지 · 우바홍차, 기문홍차, 로즈플라워'],['밤의차','데코 건오렌지 + 계피스틱 · 허니부쉬, 우엉, 루이보스, 감초, 시나몬']]},
+  {n:'레몬국화티 / 메리골드오렌지티', p:6.8, tp:'h', k:['뜨거운물 1컵','데코잎 X'],
+   h:['꽃 넣고 미리 우려두기','렌지 30초','건과일 올리기'], v:[['레몬국화','국화 5 + 건레몬'],['메리골드오렌지','메리골드 4~5 + 건오렌지']]},
+  {n:'계피생강차', p:7.3, tp:'b', k:['생강청 50','물 200','계피베이스 약간'], g:['생강청 50+물 200','렌지 30초','계피베이스 약간 추가','계피스틱','건레몬']},
+  {n:'샹들리에 자몽차', p:7.3, tp:'h', k:['샹들리에 티백','자몽청 70','뜨거운물 1잔'], h:['샹들리에 티백','자몽청 70','뜨거운물 1잔','건자몽 슬라이스']}
+ ]},
+ {id:'extra', t:'추가·사이드', sub:'추가 옵션과 디저트', items:[
+  {n:'시럽 추가', p:'+0.5', tp:'x', g:['샷잔에 따로 나가기']},
+  {n:'디카페인 변경', p:'+0.8', tp:'x', g:['커피추출 2번 버튼','냅킨 깔기']},
+  {n:'에스프레소 샷 추가', p:'+1.0', tp:'x', g:['샷잔에 따로 나가기']},
+  {n:'티(Tea) 아이스 변경', p:'+1.0', tp:'x', g:['유리 비커에 따뜻한 물 약간+티백 2개','렌지 30초','큰 유리잔에 얼음 가득','티백 넣고 데운 차 붓기','얼음 추가']},
+  {n:'브라운치즈 크로플', tp:'x', k:['냉동실 브라운치즈','바닐라아이스크림 크게 2스쿱'], g:['크로플','아이스크림 크게 2스쿱','캬라멜시럽 드리즐','브라운치즈 갈아서 듬뿍 얹기']},
+  {n:'땅콩빵', s:'10~15분 소요', tp:'x', k:['190도 예열','땅콩 3조각씩','타이머 2분'], g:['190도 예열','땅콩 3조각씩 넣기','반죽 빠르게 채우기','3초 후 뒤집기','타이머 스타트 (2분)','쟁반에 종이 놓고 접시에 빵 올리기']}
+ ]}
+];
+const CLOSE = [
+ ['4층 · 머신 마감 9시', ['머신청소: 나사 풀고 세척, 포터필터 세척, 머신 끄기','고무판, 샷잔, 템퍼, 그라인더 판, 물받침대 세척','시럽병, 튜브시럽 통 정리·세척','에어컨, 실링팬 끄기','테이블 닦기, 화장실 쓰레기 정리 (소등)','일반·재활용 쓰레기 정리, 청소기 돌리기','테라스 문 잠그기, 스탠드 조명 끄기','폰 화면 끄기, 앰프 끄기']],
+ ['4층 · 보관과 퇴근', ['창고 냉동실: 데코 건첩 통','베이스 냉장실: 튜브시럽들, 연유, 레몬쥬스병','재고 확인, 메모','소등','1층 쓰레기 버리기, 계단 불 끄기']],
+ ['1층 · 머신 마감 9시 30분, 음료 마감', ['머신청소','테이블 닦기','빵 테이블 정리, 남은 빵 카운터에 올려두기','바닥 청소','에어컨, 실링팬 끄기','입구 문 잠그기']]
+];
+const RULES = [
+ ['파우더는 HOT 1.5T, ICE 2T', ['카페모카·마끼야또·카푸치노, 메이플 피칸 라떼가 이 규칙','오곡 라떼만 한 단계 적게: HOT 1T, ICE 1.5T','헤이즐넛 파우더 2T, 초코베이스 파우더 2.5T, 프라페 초코파우더 3T']],
+ ['스팀밀크는 라떼만 240, 나머지는 230', ['카페 라떼 240','바닐라·헤이즐넛·모카·마끼야또·카푸치노·돌체·메이플·논커피 라떼 230']],
+ ['얼음 양 3단계', ['가득: 아메리카노, 카페 라떼, 바닐라/헤이즐넛, 복숭아 아이스티, 레몬차·오미자, 허브티','절반: 돌체, 메이플 피칸, 논커피 라떼, 에이드, 생자몽, 청귤차','1/3: 생망고 쥬스']],
+ ['블랜더는 액체 100 + 얼음 200', ['우유 100: 코코넛·요거트 스무디, 초코칩 프라페','물 100: 과일 스무디']],
+ ['청·연유 용량', ['에이드 청 60','레몬청·청귤청·생강청 50, 오디청 50 + 물 40','자몽청 70, 딸기청 70 (그린티 라떼는 40)','연유: 돌체 40, 초코베이스·프라페 20']],
+ ['렌지 30초', ['청 들어가는 HOT 차 (레몬·오미자·청귤·계피생강), 꽃차','허브티는 HOT 렌지 X, ICE로 바꿀 때만 30초','웰빙 쥬스 팩은 30초~1분']],
+ ['컵 벽에 먼저 바르는 메뉴', ['메이플 피칸 ICE (메이플시럽), 솔티카라멜 (캬라멜 드리즐), 아포카토 (캬라멜 드리즐)','오곡 ICE (아몬드시럽), 말차 ICE (시럽), 요거트 스무디 (각 시럽), 초코칩 프라페 (초코 드리즐)']],
+ ['유리잔 크기', ['큰 유리잔: 에이드, 오디 레몬, 생자몽, 티 아이스 변경','중간 유리잔: 웰빙 쥬스, 생망고 쥬스']]
+];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const flow = a => '<div class="flow">' + a.map(x => '<span>' + esc(x) + '</span>').join('') + '</div>';
+const TABS = [{id:'rules', t:'암기 공식'}, ...D.map(c => ({id:c.id, t:c.t})), {id:'close', t:'마감'}];
+let tab = 'coffee', quiz = false;
+
+function card(it){
+  const tags = {b:'<span class="tag h">HOT</span><span class="tag i">ICE</span>', i:'<span class="tag i">Only ICE</span>', h:'<span class="tag h">Only HOT</span>', x:''}[it.tp];
+  const price = it.p === undefined ? '' : '<span class="price">' + (typeof it.p === 'number' ? it.p.toFixed(1) : esc(it.p)) + '</span>';
+  let b = '';
+  if (it.k) b += '<div class="chips">' + it.k.map(k => '<span>' + esc(k) + '</span>').join('') + '</div>';
+  if (it.h) b += '<div class="row"><b class="h">HOT</b>' + flow(it.h) + '</div>';
+  if (it.i) b += '<div class="row"><b class="i">ICE</b>' + flow(it.i) + '</div>';
+  if (it.g) b += '<div class="row"><b class="g">순서</b>' + flow(it.g) + '</div>';
+  if (it.v) b += '<div class="vars">' + it.v.map(v => '<div class="var"><b>' + esc(v[0]) + '</b><div>' + esc(v[1]) + '</div></div>').join('') + '</div>';
+  if (it.note) b += '<div class="note">' + esc(it.note) + '</div>';
+  return '<article class="card"><button type="button" class="head"><span class="name">' + esc(it.n) + (it.s ? '<span>' + esc(it.s) + '</span>' : '') + '</span>' +
+    (it.m ? '<span class="tag m">표기 ' + esc(it.m) + '</span>' : '') + tags + price + '</button><div class="body">' + b + '</div></article>';
+}
+function section(c, items){
+  return '<section class="sec"><h2>' + esc(c.t) + '<small>' + esc(c.sub) + '</small></h2><div class="list">' + items.map(card).join('') + '</div></section>';
+}
+function ladder(){
+  const m = new Map();
+  D.forEach(c => c.items.forEach(it => { if (typeof it.p === 'number'){ if (!m.has(it.p)) m.set(it.p, []); m.get(it.p).push(it.n); } }));
+  return [...m.keys()].sort((a,b) => a-b).map(p => '<b>' + p.toFixed(1) + '</b><div>' + m.get(p).map(esc).join(' · ') + '</div>').join('');
+}
+function rules(){
+  return '<section class="sec"><h2>암기 공식<small>메뉴를 묶어서 외우는 규칙</small></h2><div class="list">' +
+    RULES.map(r => '<div class="rule"><h3>' + esc(r[0]) + '</h3><ul>' + r[1].map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>').join('') +
+    '<div class="rule"><h3>가격 사다리 (천원)</h3><div class="ladder">' + ladder() + '</div></div></div></section>';
+}
+function closing(){
+  let n = 0;
+  return '<section class="sec"><h2>마감<small>체크하면서 진행</small></h2><div class="list">' +
+    CLOSE.map(g => '<div class="rule"><h3>' + esc(g[0]) + '</h3><div class="check">' +
+      g[1].map(x => { n++; return '<label for="ck' + n + '"><input type="checkbox" id="ck' + n + '"><span>' + esc(x) + '</span></label>'; }).join('') + '</div></div>').join('') + '</div></section>';
+}
+function render(){
+  const q = $('#q').value.trim().toLowerCase();
+  let html = '';
+  if (q){
+    D.forEach(c => { const hit = c.items.filter(it => JSON.stringify(it).toLowerCase().includes(q)); if (hit.length) html += section(c, hit); });
+    if (!html) html = '<p class="empty">"' + esc(q) + '"에 맞는 메뉴가 없습니다. 재료 이름을 짧게 입력해 보세요.</p>';
+  } else if (tab === 'rules') html = rules();
+  else if (tab === 'close') html = closing();
+  else { const c = D.find(c => c.id === tab); html = section(c, c.items); }
+  $('#out').innerHTML = html;
+  $('#tabs').innerHTML = TABS.map(t => '<button type="button" role="tab" data-id="' + t.id + '" aria-selected="' + (!q && t.id === tab) + '">' + esc(t.t) + '</button>').join('');
+}
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tab = b.dataset.id; $('#q').value = ''; render(); window.scrollTo(0, 0); });
+$('#q').addEventListener('input', render);
+$('#out').addEventListener('click', e => { if (!quiz) return; const h = e.target.closest('.head'); if (h) h.parentElement.classList.toggle('open'); });
+$('#quizBtn').addEventListener('click', () => {
+  quiz = !quiz; document.body.classList.toggle('quiz', quiz);
+  $('#quizBtn').setAttribute('aria-pressed', quiz); $('#quizBtn').textContent = quiz ? '암기 모드 끄기' : '암기 모드';
+  document.querySelectorAll('.card.open').forEach(c => c.classList.remove('open'));
+});
+render();
+</script>
+
+</body></html>
